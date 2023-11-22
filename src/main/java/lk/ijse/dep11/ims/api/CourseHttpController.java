@@ -54,18 +54,18 @@ public class CourseHttpController {
     }
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping(value = "/{courseId}", consumes = "application/json")
-    public void updateCourse(@PathVariable int id,
+    public void updateCourse(@PathVariable int courseId,
                            @RequestBody  CourseTo UpdatingCourse) {
         try(Connection connection = pool.getConnection()){
             PreparedStatement stmExit = connection.prepareStatement("SELECT * FROM course WHERE id =?");
-            stmExit.setInt(1,id);
+            stmExit.setInt(1,courseId);
             if(!stmExit.executeQuery().next()){
                 throw  new ResponseStatusException(HttpStatus.NOT_FOUND,"Task Not Found");
             }
             PreparedStatement stm = connection.prepareStatement("UPDATE course SET name =?, duration_in_months=? WHERE id=?");
             stm.setString(1, UpdatingCourse.getName());
             stm.setInt(2, UpdatingCourse.getDurationInMonths());
-            stm.setInt(3,id);
+            stm.setInt(3,courseId);
             stm.executeUpdate();
         }catch (SQLException e){
             throw new RuntimeException(e);
@@ -88,10 +88,10 @@ public class CourseHttpController {
         }
     }
     @GetMapping(value = "/{courseId}",produces = "application/json")
-    public CourseTo getCourse(@PathVariable int id) {
+    public CourseTo getCourse(@PathVariable int courseId) {
         try(Connection connection = pool.getConnection()){
             PreparedStatement stmExit = connection.prepareStatement("SELECT * FROM course WHERE id =?");
-            stmExit.setInt(1,id);
+            stmExit.setInt(1,courseId);
             ResultSet rst=stmExit.executeQuery();
             if(!rst.next()){
                 throw  new ResponseStatusException(HttpStatus.NOT_FOUND,"Course Not Found");
@@ -99,7 +99,7 @@ public class CourseHttpController {
             rst.next();
                 String courseName = rst.getString("name");
                 int duration_in_months = rst.getInt("duration_in_months");
-                return new CourseTo(id, courseName, duration_in_months);
+                return new CourseTo(courseId, courseName, duration_in_months);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
